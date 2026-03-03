@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Discord Style Web App</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
+}
+
+body{
+background:#0b0f1a;
+color:white;
+}
+
+/* Login */
+.login-screen{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.login-box{
+background:#020617;
+padding:40px;
+border-radius:20px;
+width:320px;
+}
+
+.login-box input{
+width:100%;
+padding:12px;
+margin-top:15px;
+border-radius:10px;
+border:none;
+}
+
+.login-box button{
+width:100%;
+margin-top:15px;
+padding:12px;
+border:none;
+border-radius:10px;
+background:#38bdf8;
+font-weight:bold;
+cursor:pointer;
+}
+
+/* App Layout */
+.app{
+display:none;
+height:100vh;
+}
+
+/* Servers */
+.servers{
+width:75px;
+background:#0f172a;
+display:flex;
+flex-direction:column;
+align-items:center;
+padding-top:20px;
+gap:15px;
+}
+
+.server{
+width:50px;
+height:50px;
+border-radius:50%;
+background:#38bdf8;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+}
+
+/* Channels */
+.channels{
+width:240px;
+background:#020617;
+padding:20px;
+}
+
+.channel{
+padding:12px;
+border-radius:8px;
+margin-bottom:8px;
+cursor:pointer;
+}
+
+.channel:hover{
+background:#0f172a;
+}
+
+/* Chat */
+.chat{
+flex:1;
+display:flex;
+flex-direction:column;
+}
+
+.chat-header{
+padding:20px;
+background:#020617;
+border-bottom:1px solid #0f172a;
+}
+
+.messages{
+flex:1;
+padding:20px;
+overflow-y:auto;
+}
+
+.message{
+background:#0f172a;
+padding:12px;
+border-radius:12px;
+margin-bottom:10px;
+width:fit-content;
+}
+
+.chat-input{
+padding:20px;
+background:#020617;
+display:flex;
+gap:10px;
+}
+
+.chat-input input{
+flex:1;
+padding:12px;
+border-radius:10px;
+border:none;
+}
+
+.chat-input button{
+padding:12px 18px;
+border:none;
+border-radius:10px;
+background:#38bdf8;
+cursor:pointer;
+}
+
+/* Friends */
+.friends{
+width:220px;
+background:#0f172a;
+padding:20px;
+}
+
+.friend{
+padding:10px;
+background:#020617;
+border-radius:10px;
+margin-top:10px;
+}
+</style>
+
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+<div class="login-box">
+<h2>Login</h2>
+
+<input id="username" placeholder="Username">
+<input type="password" placeholder="Password">
+
+<button onclick="login()">Login</button>
+<button onclick="createAccount()">Create Account</button>
+</div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+
+<div class="servers">
+<div class="server" onclick="changeServer('Main')">M</div>
+<div class="server" onclick="changeServer('Gaming')">G</div>
+<div class="server" onclick="changeServer('Dev')">D</div>
+</div>
+
+<div class="channels">
+<h3>Channels</h3>
+
+<div class="channel" onclick="changeChannel('general')">
+# general
+</div>
+
+<div class="channel" onclick="changeChannel('gaming')">
+# gaming
+</div>
+
+</div>
+
+<div class="chat">
+
+<div class="chat-header">
+<h2 id="channelName"># general</h2>
+</div>
+
+<div class="messages" id="messages">
+<p class="message">System: Welcome</p>
+</div>
+
+<div class="chat-input">
+<input id="msgInput"
+placeholder="Message..."
+onkeypress="if(event.key==='Enter') sendMessage()">
+
+<button onclick="sendMessage()">Send</button>
+</div>
+
+</div>
+
+<div class="friends">
+<h3>Friends</h3>
+
+<input id="friendInput"
+placeholder="Add friend name"
+style="width:100%;padding:10px;border-radius:10px;border:none;">
+
+<button onclick="addFriend()"
+style="width:100%;margin-top:10px;padding:10px;background:#38bdf8;border:none;border-radius:10px;font-weight:bold;">
+Add Friend
+</button>
+
+<div id="friendsList"></div>
+
+</div>
+
+</div>
+
+<script>
+
+/* Login */
+function login(){
+document.getElementById("loginScreen").style.display="none";
+document.getElementById("app").style.display="flex";
+}
+
+function createAccount(){
+alert("Backend required for real accounts.");
+}
+
+/* Chat */
+function sendMessage(){
+let input=document.getElementById("msgInput");
+let msg=input.value.trim();
+if(!msg) return;
+
+let box=document.getElementById("messages");
+
+let p=document.createElement("p");
+p.className="message";
+p.textContent="You: "+msg;
+
+box.appendChild(p);
+input.value="";
+box.scrollTop=box.scrollHeight;
+}
+
+/* Channels */
+function changeServer(name){
+alert("Switched server: "+name);
+}
+
+function changeChannel(name){
+document.getElementById("channelName").textContent="# "+name;
+
+let box=document.getElementById("messages");
+box.innerHTML="<p class='message'>Switched to "+name+"</p>";
+}
+
+/* Friends */
+function addFriend(){
+let name=document.getElementById("friendInput").value.trim();
+if(!name) return;
+
+let list=document.getElementById("friendsList");
+
+let p=document.createElement("p");
+p.className="friend";
+p.textContent=name;
+
+list.appendChild(p);
+
+document.getElementById("friendInput").value="";
+}
+
+</script>
+
+</body>
+</html>

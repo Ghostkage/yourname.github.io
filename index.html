@@ -2,345 +2,312 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>UltraChat</title>
+<title>UltraChat OS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:system-ui;
+/* ========================
+   CORE STYLES
+   ======================== */
+*{ margin:0; padding:0; box-sizing:border-box; font-family:system-ui; }
+body{ background:#0a0f1a; color:white; overflow: hidden; }
+.app{ display:flex; height:100vh; }
+
+/* Sidebar: Servers */
+.servers{ width:72px; background:#0f172a; display:flex; flex-direction:column; align-items:center; padding-top:20px; gap:18px; border-right: 1px solid #1e293b; }
+.server{ width:50px; height:50px; border-radius:50%; background:#38bdf8; display:flex; justify-content:center; align-items:center; cursor:pointer; transition:.25s; font-weight:bold; color: #0a0f1a; }
+.server.active{ outline:3px solid white; border-radius: 30%; }
+.server:hover{ border-radius:35%; transform:scale(1.1); }
+
+/* Sidebar: Channels */
+.channels{ width:240px; background:#020617; padding:20px; display:flex; flex-direction:column; gap:12px; }
+.channel{ padding:12px; border-radius:10px; cursor:pointer; transition:.2s; color: #94a3b8; }
+.channel.active{ background:#0f172a; color: white; }
+
+/* Main Chat Area */
+.chat{ flex:1; display:flex; flex-direction:column; background: #0f172a; }
+.chat-header{ padding:18px; background:#020617; border-bottom:1px solid #1e293b; display:flex; justify-content:space-between; align-items:center; }
+
+.messages{ flex:1; padding:20px; overflow-y:auto; display:flex; flex-direction:column; gap:12px; }
+.message{ padding:12px 16px; border-radius:14px; width:fit-content; max-width:70%; animation:fade .2s; position: relative; }
+.me{ background:#38bdf8; align-self:flex-end; color:black; }
+.other{ background:#1e293b; color: white; }
+
+@keyframes fade{ from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
+
+.chat-input{ padding:18px; background:#020617; display:flex; gap:12px; }
+.chat-input input{ flex:1; padding:14px; border-radius:12px; border:none; outline:none; background:#0f172a; color:white; }
+.chat-input button{ padding:14px 22px; border:none; border-radius:12px; background:#38bdf8; cursor:pointer; font-weight:bold; }
+
+/* Friends Sidebar */
+.friends{ width:230px; background:#0f172a; padding:20px; display:flex; flex-direction:column; gap:12px; border-left: 1px solid #1e293b; }
+.friend{ padding:10px; background:#020617; border-radius:10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;}
+.remove-btn { color: #ef4444; cursor: pointer; font-weight: bold; }
+
+.profile{ margin-top:auto; padding:15px; background:#020617; border-radius:15px; display:flex; align-items:center; gap:10px; }
+.logout-btn { opacity:.6; cursor:pointer; color:#38bdf8; font-weight:bold; font-size: 0.8rem; }
+
+/* ========================
+   ADD FRIEND MODAL (DISCORD STYLE)
+   ======================== */
+.modal-overlay { 
+    position: fixed; top:0; left:0; width:100%; height:100%; 
+    background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 100; 
 }
-
-body{
-background:#0a0f1a;
-color:white;
+.modal { 
+    background: #313338; padding: 30px; border-radius: 8px; width: 440px; 
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
 }
-
-.app{
-display:flex;
-height:100vh;
+.modal h2 { margin-bottom: 8px; }
+.modal p { color: #b5bac1; font-size: 0.9rem; margin-bottom: 20px; }
+.add-input-wrap { 
+    background: #1e1f22; padding: 10px; border-radius: 8px; 
+    display: flex; border: 1px solid #1e1f22; transition: 0.2s;
 }
-
-/* Servers */
-
-.servers{
-width:72px;
-background:#0f172a;
-display:flex;
-flex-direction:column;
-align-items:center;
-padding-top:20px;
-gap:18px;
+.add-input-wrap:focus-within { border-color: #5865f2; }
+.add-input-wrap input { 
+    background: none; border: none; outline: none; color: white; flex: 1; font-size: 1rem;
 }
-
-.server{
-width:50px;
-height:50px;
-border-radius:50%;
-background:#38bdf8;
-display:flex;
-justify-content:center;
-align-items:center;
-cursor:pointer;
-transition:.25s;
-font-weight:bold;
+.add-input-wrap button { 
+    background: #5865f2; color: white; border: none; padding: 8px 16px; 
+    border-radius: 4px; cursor: pointer; font-weight: bold;
 }
+.add-input-wrap button:disabled { background: #3c45a5; cursor: not-allowed; opacity: 0.5; }
 
-.server.active{
-outline:3px solid white;
-}
+/* Upgrade Message Styles */
+.msg-info { font-size: 0.7rem; opacity: 0.6; margin-bottom: 4px; display: block; }
+.me .msg-info { text-align: right; color: #000; }
 
-.server:hover{
-border-radius:35%;
-transform:scale(1.1);
-}
-
-/* Channels */
-
-.channels{
-width:240px;
-background:#020617;
-padding:20px;
-display:flex;
-flex-direction:column;
-gap:12px;
-}
-
-.channel{
-padding:12px;
-border-radius:10px;
-cursor:pointer;
-transition:.2s;
-}
-
-.channel.active{
-background:#0f172a;
-}
-
-.channel:hover{
-background:#0f172a;
-}
-
-/* Chat */
-
-.chat{
-flex:1;
-display:flex;
-flex-direction:column;
-}
-
-.chat-header{
-padding:18px;
-background:#020617;
-border-bottom:1px solid #0f172a;
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
-
-.messages{
-flex:1;
-padding:20px;
-overflow-y:auto;
-display:flex;
-flex-direction:column;
-gap:12px;
-}
-
-.message{
-padding:14px;
-border-radius:14px;
-width:fit-content;
-max-width:70%;
-animation:fade .2s;
-}
-
-.me{
-background:#38bdf8;
-align-self:flex-end;
-color:black;
-}
-
-.other{
-background:#0f172a;
-}
-
-@keyframes fade{
-from{opacity:0;transform:translateY(8px);}
-to{opacity:1;transform:translateY(0);}
-}
-
-.chat-input{
-padding:18px;
-background:#020617;
-display:flex;
-gap:12px;
-}
-
-.chat-input input{
-flex:1;
-padding:14px;
-border-radius:12px;
-border:none;
-outline:none;
-background:#0f172a;
-color:white;
-}
-
-.chat-input button{
-padding:14px 22px;
-border:none;
-border-radius:12px;
-background:#38bdf8;
-cursor:pointer;
-font-weight:bold;
-}
-
-/* Friends */
-
-.friends{
-width:230px;
-background:#0f172a;
-padding:20px;
-display:flex;
-flex-direction:column;
-gap:12px;
-}
-
-.friend{
-padding:10px;
-background:#020617;
-border-radius:10px;
-}
-
-.profile{
-margin-top:auto;
-padding:15px;
-background:#020617;
-border-radius:15px;
-display:flex;
-align-items:center;
-gap:10px;
-}
-
-@media(max-width:900px){
-.friends{display:none;}
-.channels{width:160px;}
-}
+@media(max-width:900px){ .friends{display:none;} .channels{width:160px;} }
 </style>
 </head>
 <body>
 
 <div class="app">
+    <div class="servers" id="servers"></div>
 
-<div class="servers" id="servers"></div>
+    <div class="channels">
+        <h3 id="serverTitle">Loading...</h3>
+        <div id="channelList"></div>
+    </div>
 
-<div class="channels">
-<h3 id="serverTitle">Main</h3>
-<div id="channelList"></div>
+    <div class="chat">
+        <div class="chat-header">
+            <div>
+                <h2 id="channelTitle"># general</h2>
+                <small id="statusHeader" style="opacity: 0.6;">Online • 1</small>
+            </div>
+        </div>
+        <div class="messages" id="messages"></div>
+        <div class="chat-input">
+            <input id="messageInput" placeholder="Message..." autocomplete="off">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <div class="friends">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>Friends</h3>
+            <button onclick="openModal()" style="background:#23a559; border:none; color:#fff; border-radius:5px; cursor:pointer; padding: 4px 10px; font-weight:bold; font-size: 0.8rem;">Add Friend</button>
+        </div>
+        <div id="friendsList"></div>
+
+        <div class="profile">
+            <div style="width:40px;height:40px;border-radius:50%;background:#38bdf8"></div>
+            <div style="flex:1">
+                <div id="usernameDisplay"></div>
+                <small class="logout-btn" onclick="logout()">Logout</small>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="chat">
-
-<div class="chat-header">
-<h2 id="channelTitle"># general</h2>
-<span>Online • 1</span>
-</div>
-
-<div class="messages" id="messages"></div>
-
-<div class="chat-input">
-<input id="messageInput" placeholder="Message..." autocomplete="off">
-<button onclick="sendMessage()">Send</button>
-</div>
-
-</div>
-
-<div class="friends">
-<h3>Friends</h3>
-<div class="friend">User1</div>
-<div class="friend">User2</div>
-<div class="friend">User3</div>
-
-<div class="profile">
-<div style="width:40px;height:40px;border-radius:50%;background:#38bdf8"></div>
-<div>
-<div id="usernameDisplay"></div>
-<small style="opacity:.6">Online</small>
-</div>
-</div>
-</div>
-
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+        <h2>ADD FRIEND</h2>
+        <p>You can add a friend with their UltraChat Tag. It's cAsE sEnSiTiVe!</p>
+        <div class="add-input-wrap">
+            <input type="text" id="friendTagInput" placeholder="Enter a Username#0000">
+            <button id="addFriendBtn" onclick="submitFriendRequest()">Send Request</button>
+        </div>
+        <div id="modalMsg" style="margin-top: 10px; font-size: 0.8rem;"></div>
+    </div>
 </div>
 
 <script>
-
 /* ========================
-STATE
-======================== */
-
-let username = "User" + Math.floor(Math.random()*999);
-
-let data = {
-Main:{
-general:[],
-gaming:[],
-random:[]
-},
-Dev:{
-announcements:[],
-bugs:[],
-chat:[]
+   STATE & IDENTITY
+   ======================== */
+// Create a unique Discord-style tag if it doesn't exist
+if(!localStorage.getItem("ultraChat_Tag")) {
+    let randomID = Math.floor(1000 + Math.random() * 9000);
+    localStorage.setItem("ultraChat_Tag", "#" + randomID);
 }
+
+let baseName = localStorage.getItem("ultraChat_BaseName") || prompt("Enter username") || "User";
+localStorage.setItem("ultraChat_BaseName", baseName);
+
+let userTag = localStorage.getItem("ultraChat_Tag");
+let fullUsername = baseName + userTag;
+
+let data = JSON.parse(localStorage.getItem("ultraChat_Data")) || {
+    Main:{ general:[], gaming:[], random:[] },
+    Dev:{ announcements:[], bugs:[], chat:[] }
 };
 
+let friends = JSON.parse(localStorage.getItem("ultraChat_Friends")) || ["Clyde#0000", "Wumpus#1337"];
 let currentServer = "Main";
 let currentChannel = "general";
+let typingTimeout;
+
+document.getElementById("usernameDisplay").innerText = fullUsername;
 
 /* ========================
-INIT
-======================== */
+   MODAL LOGIC
+   ======================== */
+function openModal() {
+    document.getElementById("modalOverlay").style.display = "flex";
+    document.getElementById("friendTagInput").focus();
+}
 
-document.getElementById("usernameDisplay").innerText = username;
+function closeModal(e) {
+    document.getElementById("modalOverlay").style.display = "none";
+    document.getElementById("modalMsg").innerText = "";
+    document.getElementById("friendTagInput").value = "";
+}
+
+function submitFriendRequest() {
+    let input = document.getElementById("friendTagInput");
+    let msg = document.getElementById("modalMsg");
+    let val = input.value.trim();
+
+    if(!val.includes("#")) {
+        msg.style.color = "#fa777c";
+        msg.innerText = "Hm, didn't work. Double check that the tag is correct.";
+        return;
+    }
+
+    if(val === fullUsername) {
+        msg.style.color = "#fa777c";
+        msg.innerText = "You can't add yourself, silly!";
+        return;
+    }
+
+    // Success Simulation
+    friends.push(val);
+    localStorage.setItem("ultraChat_Friends", JSON.stringify(friends));
+    renderFriends();
+    
+    msg.style.color = "#23a559";
+    msg.innerText = `Success! Friend request sent to ${val}.`;
+    input.value = "";
+    setTimeout(closeModal, 1500);
+}
+
+/* ========================
+   CORE RENDERING
+   ======================== */
+function renderAll(){
+    renderServers();
+    renderChannels();
+    renderMessages();
+    renderFriends();
+}
 
 function renderServers(){
-let container = document.getElementById("servers");
-container.innerHTML = "";
-Object.keys(data).forEach(server=>{
-let div = document.createElement("div");
-div.className="server"+(server===currentServer?" active":"");
-div.innerText = server[0];
-div.onclick=()=>{
-currentServer=server;
-currentChannel=Object.keys(data[server])[0];
-renderAll();
-};
-container.appendChild(div);
-});
+    let container = document.getElementById("servers");
+    container.innerHTML = "";
+    Object.keys(data).forEach(server=>{
+        let div = document.createElement("div");
+        div.className="server"+(server===currentServer?" active":"");
+        div.innerText = server[0];
+        div.onclick=()=>{
+            currentServer=server;
+            currentChannel=Object.keys(data[server])[0];
+            renderAll();
+        };
+        container.appendChild(div);
+    });
 }
 
 function renderChannels(){
-let container = document.getElementById("channelList");
-container.innerHTML="";
-document.getElementById("serverTitle").innerText=currentServer;
-
-Object.keys(data[currentServer]).forEach(channel=>{
-let div=document.createElement("div");
-div.className="channel"+(channel===currentChannel?" active":"");
-div.innerText="# "+channel;
-div.onclick=()=>{
-currentChannel=channel;
-renderMessages();
-renderChannels();
-};
-container.appendChild(div);
-});
+    let container = document.getElementById("channelList");
+    container.innerHTML="";
+    document.getElementById("serverTitle").innerText=currentServer;
+    Object.keys(data[currentServer]).forEach(channel=>{
+        let div=document.createElement("div");
+        div.className="channel"+(channel===currentChannel?" active":"");
+        div.innerText="# "+channel;
+        div.onclick=()=>{
+            currentChannel=channel;
+            renderAll();
+        };
+        container.appendChild(div);
+    });
 }
 
 function renderMessages(){
-let container=document.getElementById("messages");
-container.innerHTML="";
-document.getElementById("channelTitle").innerText="# "+currentChannel;
-
-data[currentServer][currentChannel].forEach(msg=>{
-let div=document.createElement("div");
-div.className="message "+(msg.user===username?"me":"other");
-div.innerText=msg.user+": "+msg.text;
-container.appendChild(div);
-});
-
-container.scrollTop=container.scrollHeight;
+    let container = document.getElementById("messages");
+    container.innerHTML = "";
+    document.getElementById("channelTitle").innerText = "# " + currentChannel;
+    data[currentServer][currentChannel].forEach((msg, index) => {
+        let div = document.createElement("div");
+        div.className = "message " + (msg.user === fullUsername ? "me" : "other");
+        let time = new Date(msg.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        div.innerHTML = `<small class="msg-info"><strong>${msg.user}</strong> • ${time}</small><div>${msg.text}</div>`;
+        if(msg.user === fullUsername){
+            div.oncontextmenu = (e) => {
+                e.preventDefault();
+                if(confirm("Delete?")){ data[currentServer][currentChannel].splice(index,1); saveAndRender(); }
+            };
+        }
+        container.appendChild(div);
+    });
+    container.scrollTop = container.scrollHeight;
 }
 
-function renderAll(){
-renderServers();
-renderChannels();
-renderMessages();
+function renderFriends() {
+    let container = document.getElementById("friendsList");
+    container.innerHTML = "";
+    friends.forEach((friend, index) => {
+        let div = document.createElement("div");
+        div.className = "friend";
+        div.innerHTML = `<span>${friend}</span><span class="remove-btn" onclick="removeFriend(${index})">×</span>`;
+        container.appendChild(div);
+    });
 }
 
+/* ========================
+   ACTIONS
+   ======================== */
 function sendMessage(){
-let input=document.getElementById("messageInput");
-if(input.value.trim()==="") return;
-
-data[currentServer][currentChannel].push({
-user:username,
-text:input.value
-});
-
-input.value="";
-renderMessages();
+    let input = document.getElementById("messageInput");
+    if(input.value.trim() === "") return;
+    data[currentServer][currentChannel].push({ user: fullUsername, text: input.value, time: new Date().getTime() });
+    input.value = "";
+    saveAndRender();
 }
 
-document.getElementById("messageInput")
-.addEventListener("keypress",function(e){
-if(e.key==="Enter") sendMessage();
+function saveAndRender() {
+    localStorage.setItem("ultraChat_Data", JSON.stringify(data));
+    renderMessages();
+}
+
+function removeFriend(index) {
+    friends.splice(index, 1);
+    localStorage.setItem("ultraChat_Friends", JSON.stringify(friends));
+    renderFriends();
+}
+
+function logout() {
+    if(confirm("Logout?")) { localStorage.clear(); location.reload(); }
+}
+
+document.getElementById("messageInput").addEventListener("keypress", (e) => {
+    if(e.key === "Enter") sendMessage();
 });
 
 renderAll();
-
 </script>
-
 </body>
 </html>
